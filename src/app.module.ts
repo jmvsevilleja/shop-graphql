@@ -8,6 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppResolver } from './app.resolver';
 import configuration from './config/configuration';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import configuration from './config/configuration';
       sortSchema: true,
       playground: true,
     }),
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver],
