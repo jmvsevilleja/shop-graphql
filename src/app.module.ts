@@ -4,11 +4,11 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppResolver } from './app.resolver';
 import configuration from './config/configuration';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -29,9 +29,10 @@ import { UserModule } from './modules/user/user.module';
       sortSchema: true,
       playground: true,
     }),
-    UserModule
+    UserModule,
+    AuthModule
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService, AppResolver],
 })
 export class AppModule {}
