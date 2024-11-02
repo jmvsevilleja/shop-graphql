@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, NotFoundException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
@@ -13,7 +13,7 @@ export class UserResolver {
   @Query(() => User)
   @UseGuards(GqlAuthGuard)
   async me(@CurrentUser() user: User) {
-    return this.userService.findById(user.id);
+    return user;
   }
 
   @Query(() => [User])
