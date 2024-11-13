@@ -1,28 +1,21 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-
-export interface ICurrentUser {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  roles: string[]
-  // add other properties you need
-}
+import { ICurrentUser } from '../interfaces/current-user.interface';
 
 export const CurrentUser = createParamDecorator(
   (data: unknown, context: ExecutionContext): ICurrentUser => {
     const ctx = GqlExecutionContext.create(context);
     const user = ctx.getContext().req.user;
 
-    // Ensure we always return the expected format
-    return {
-      id: user._id.toString(), // Convert to string if it's ObjectId
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      roles: user.roles
-      // map other properties
-    };
+    if (!user) {
+      throw new UnauthorizedException('User not found in request');
+    }
+
+    // Ensure the user object matches our interface
+    if (!user._id || !user.email || !Array.isArray(user.roles)) {
+      throw new UnauthorizedException('Invalid user object in request');
+    }
+
+    return user;
   },
 );
