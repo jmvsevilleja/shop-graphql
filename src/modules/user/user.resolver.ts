@@ -1,5 +1,9 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { UseGuards, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  UseGuards,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.schema';
 import { CreateUserInput, UpdateUserInput } from './user.dto';
@@ -27,12 +31,18 @@ export class UserResolver {
     return this.userService.createUser(createUserInput);
   }
 
+  @Query(() => User)
+  async findUserById(@Args('id') id: string): Promise<User> {
+    const user = await this.userService.findUserById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
   @Mutation(() => User)
   @UseGuards(GqlAuthGuard)
-  async deleteUser(
-    @Args('id') id: string,
-    @CurrentUser() currentUser: User,
-  ) {
+  async deleteUser(@Args('id') id: string, @CurrentUser() currentUser: User) {
     if (currentUser.id !== id /* && !currentUser.isAdmin */) {
       throw new ForbiddenException('You can only delete your own account');
     }
