@@ -1,8 +1,8 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UseGuards, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.input';
+import { User } from './user.schema';
+import { CreateUserInput, UpdateUserInput } from './user.dto';
 import { GqlAuthGuard } from '../../common/guards/gql-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -19,12 +19,12 @@ export class UserResolver {
   @Query(() => [User])
   @UseGuards(GqlAuthGuard)
   async users() {
-    return this.userService.findAll();
+    return this.userService.findAllUsers();
   }
 
   @Mutation(() => User)
   async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.userService.create(createUserInput);
+    return this.userService.createUser(createUserInput);
   }
 
   @Mutation(() => User)
@@ -36,6 +36,18 @@ export class UserResolver {
     if (currentUser.id !== id /* && !currentUser.isAdmin */) {
       throw new ForbiddenException('You can only delete your own account');
     }
-    return this.userService.delete(id);
+    return this.userService.deleteUser(id);
+  }
+
+  @Mutation(() => User)
+  async updateUser(
+    @Args('id') id: string,
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    const user = await this.userService.updateUser(id, updateUserInput);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }
